@@ -100,3 +100,4 @@ dmypy.json
 # catboost stuff
 
 *catboost_info/
+.databricks
