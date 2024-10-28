@@ -46,7 +46,7 @@ class Loans:
         self.model_class = model_class
         self.model_params = configs.get('model_params', {})
         self.categorical_variables = configs.get('categorical_variables', [])
-        self.verbose = configs.get('verbose', True)
+        self.verbose = configs.get('catboost_verbose', True)
         self.random_state = configs.get('random_state', 42)
         self.evaluator = evaluator or Evaluator()
         logging.basicConfig(level=logging.INFO)
