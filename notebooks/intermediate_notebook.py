@@ -1,4 +1,12 @@
 # Databricks notebook source
+!pip install catboost
+
+# COMMAND ----------
+
+# MAGIC %restart_python
+
+# COMMAND ----------
+
 import sys
 import os
 
@@ -9,6 +17,9 @@ sys.path.append(parent_dir)
 
 from src.loans.data_processor import DataBuilder
 from src.loans.helpers import open_yaml_file
+from src.loans.predict_loans import Evaluator, Loans
+from catboost import CatBoostClassifier, Pool
+from sklearn.metrics import roc_auc_score
 
 # COMMAND ----------
 
@@ -30,7 +41,15 @@ X, Y = builder.get_features_and_target()
 
 # COMMAND ----------
 
-Y
+evaluator = Evaluator(metric_function=roc_auc_score)
+
+# COMMAND ----------
+
+loans = Loans(configs=configs, evaluator=evaluator, model_class=CatBoostClassifier)
+
+# COMMAND ----------
+
+models, vals_x, vals_y = loans.perform_cv(X, Y, nfolds=5)
 
 # COMMAND ----------
 
