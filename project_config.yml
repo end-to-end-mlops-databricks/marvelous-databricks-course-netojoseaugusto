@@ -26,4 +26,5 @@ catboost_params:
 
 catboost_verbose: 100
 
-file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/train.csv
+train_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/train.csv
+test_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/test.csv

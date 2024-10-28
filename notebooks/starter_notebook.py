@@ -12,10 +12,11 @@ import seaborn as sns
 import numpy as np
 from catboost import CatBoostClassifier, Pool
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, roc_curve, auc
 from typing import List, Tuple, Generator
 import yaml
 import logging
+import matplotlib.pyplot as plt
 
 # COMMAND ----------
 
@@ -167,11 +168,60 @@ def perform_cv(X: pd.DataFrame, Y: pd.DataFrame, nfolds: int = 4) -> Tuple[List[
 
 # COMMAND ----------
 
+def catboost_predictions(models: List[CatBoostClassifier], data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Generate mean predictions from a list of CatBoost models.
+
+    Args:
+    - models: A list of trained CatBoost model objects.
+    - data: A pandas DataFrame containing the features for prediction, including an 'id' column.
+
+    Returns:
+    - A pandas DataFrame with two columns: 'id' and 'loan_status', where 'loan_status' is the mean prediction from the models.
+    """
+    data_without_id = data.drop(columns=['id'])
+    predictions = [model.predict_proba(data_without_id)[:, 1] for model in models]
+    mean_predictions = np.mean(predictions, axis=0)
+    return pd.DataFrame({'id': data['id'], 'loan_status': mean_predictions})
+
+# COMMAND ----------
+
+def plot_catboost_roc(models: List[CatBoostClassifier], vals_x: List[pd.DataFrame], vals_y: List[pd.DataFrame]) -> None:
+    """
+    Plots the ROC curve for CatBoostClassifier models.
+
+    Args:
+    - models: A list of CatBoostClassifier models.
+    - vals_x: A list of validation feature datasets corresponding to each model.
+    - vals_y: A list of validation target datasets corresponding to each model.
+
+    Returns:
+    None. Displays the ROC curve plot.
+    """
+    plt.figure(figsize=(10, 8))
+    for model, x_val, y_val in zip(models, vals_x, vals_y):
+        if isinstance(model, CatBoostClassifier):
+            y_score = model.predict_proba(x_val)[:, 1]
+            fpr, tpr, _ = roc_curve(y_val, y_score)
+            roc_auc = auc(fpr, tpr)
+            plt.plot(fpr, tpr, lw=2, label=f'{model.__class__.__name__} (area = {roc_auc:.2f})')
+    
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic')
+    plt.legend(loc="lower right")
+    display(plt)
+
+# COMMAND ----------
+
 configs = open_yaml_file('../project_config.yml')
 
 # COMMAND ----------
 
-df = load_data(path=configs.get('file_path'))
+df = load_data(path=configs.get('train_file_path'))
 
 # COMMAND ----------
 
@@ -184,6 +234,22 @@ X, Y = separate_features_and_target(dataframe=df, target_column=configs.get('tar
 # COMMAND ----------
 
 models, vals_x, vals_y = perform_cv(X, Y)
+
+# COMMAND ----------
+
+plot_catboost_roc(models, vals_x, vals_y)
+
+# COMMAND ----------
+
+data = load_data(path=configs.get('test_file_path'))
+
+# COMMAND ----------
+
+predictions = catboost_predictions(models, data)
+
+# COMMAND ----------
+
+display(predictions)
 
 # COMMAND ----------
 
