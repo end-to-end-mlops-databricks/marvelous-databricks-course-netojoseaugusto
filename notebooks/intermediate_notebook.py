@@ -20,6 +20,9 @@ from src.loans.helpers import open_yaml_file
 from src.loans.predict_loans import Evaluator, Loans
 from catboost import CatBoostClassifier, Pool
 from sklearn.metrics import roc_auc_score
+from logging_config import setup_logging
+
+setup_logging()
 
 # COMMAND ----------
 
@@ -49,7 +52,26 @@ loans = Loans(configs=configs, evaluator=evaluator, model_class=CatBoostClassifi
 
 # COMMAND ----------
 
-models, vals_x, vals_y = loans.perform_cv(X, Y, nfolds=5)
+loans.perform_cv(X, Y, nfolds=2)
+
+# COMMAND ----------
+
+test_builder = DataBuilder()
+
+# COMMAND ----------
+
+test_builder = (
+    test_builder
+    .load_data(configs.get('test_file_path'))
+)
+
+# COMMAND ----------
+
+test_df = test_builder.get_dataframe()
+
+# COMMAND ----------
+
+result = loans.predict_cv(test_df)
 
 # COMMAND ----------
 

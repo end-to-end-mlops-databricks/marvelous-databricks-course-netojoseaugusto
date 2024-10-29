@@ -96,11 +96,11 @@ def fit_model(train_x: pd.DataFrame, train_y: pd.DataFrame, val_x: pd.DataFrame,
     Returns:
     - CatBoostClassifier: The fitted model.
     """
-    catboost_params = configs.get('catboost_params')
+    catboost_params = configs.get('model_params')
     categorical_variables = configs.get('categorical_variables')
     model = CatBoostClassifier(**catboost_params)
     eval_dataset = Pool(val_x, val_y, cat_features=categorical_variables)
-    fitted_model = model.fit(train_x, train_y, eval_set=eval_dataset, cat_features=categorical_variables, verbose=configs.get('catboost_verbose'))
+    fitted_model = model.fit(train_x, train_y, eval_set=eval_dataset, cat_features=categorical_variables, verbose=configs.get('model_verbose'))
     return fitted_model
 
 # COMMAND ----------
@@ -230,6 +230,10 @@ df = drop_columns(dataframe=df, column_names=configs.get('dropped_columns'))
 # COMMAND ----------
 
 X, Y = separate_features_and_target(dataframe=df, target_column=configs.get('target_column'))
+
+# COMMAND ----------
+
+X
 
 # COMMAND ----------
 

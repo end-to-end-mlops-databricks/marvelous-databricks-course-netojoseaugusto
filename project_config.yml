@@ -18,13 +18,13 @@ dropped_columns:
 
 target_column: loan_status
 
-catboost_params:
+model_params:
   iterations: 1500
   eval_metric: AUC
   use_best_model: True
   objective: Logloss
 
-catboost_verbose: 100
+model_verbose: 100
 
 train_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/train.csv
 test_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/test.csv
