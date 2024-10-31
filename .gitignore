@@ -101,3 +101,5 @@ dmypy.json
 
 *catboost_info/
 .databricks
+ 
+uv.lock
