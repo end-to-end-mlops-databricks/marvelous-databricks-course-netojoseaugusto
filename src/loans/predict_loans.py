@@ -1,12 +1,14 @@
-import pandas as pd
+import logging
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type
+
 import numpy as np
+import pandas as pd
 from catboost import CatBoostClassifier, Pool
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
-import logging
-from typing import Any, Dict, Generator, List, Optional, Tuple, Type, Callable
 
 logger = logging.getLogger(__name__)
+
 
 class Evaluator:
     def __init__(self, metric_function: Callable = None):
@@ -30,6 +32,7 @@ class Evaluator:
         - float: The evaluation score.
         """
         return self.metric_function(y_true, y_pred)
+
 
 class Loans:
     """
@@ -106,9 +109,7 @@ class Loans:
             model.fit(train_x, train_y)
         return model
 
-    def evaluate_model(
-        self, fitted_model: Any, val_x: pd.DataFrame, val_y: pd.Series
-    ) -> float:
+    def evaluate_model(self, fitted_model: Any, val_x: pd.DataFrame, val_y: pd.Series) -> float:
         """
         Evaluate a model using the Evaluator.
 
@@ -156,9 +157,7 @@ class Loans:
         for train_idx, val_idx in folds.split(X, Y):
             yield train_idx, val_idx
 
-    def perform_cv(
-        self, X: pd.DataFrame, Y: pd.Series, nfolds: int = 4
-    ) -> None:
+    def perform_cv(self, X: pd.DataFrame, Y: pd.Series, nfolds: int = 4) -> None:
         """
         Perform cross-validation and train models.
 
@@ -204,7 +203,7 @@ class Loans:
         self.models = models
         self.vals_x = vals_x
         self.vals_y = vals_y
-    
+
     def get_validation_features(self) -> List[pd.DataFrame]:
         """
         Get the list of validation feature DataFrames from cross-validation.
@@ -226,7 +225,7 @@ class Loans:
             List of validation target Series.
         """
         return self.vals_y
-    
+
     def get_cv_models(self) -> List[Any]:
         """
         Get the list of models

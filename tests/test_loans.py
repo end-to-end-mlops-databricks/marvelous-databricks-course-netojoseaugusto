@@ -1,27 +1,26 @@
-from src.loans.predict_loans import Loans, Evaluator
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
 from catboost import CatBoostClassifier
-from sklearn.metrics import roc_auc_score
+
+from src.loans.predict_loans import Evaluator, Loans
+
 
 @pytest.fixture
 def sample_configs():
     return {
-        'model_params': {'iterations': 10, 'learning_rate': 0.1},
-        'categorical_variables': ['cat_feature'],
-        'model_verbose': False
+        "model_params": {"iterations": 10, "learning_rate": 0.1},
+        "categorical_variables": ["cat_feature"],
+        "model_verbose": False,
     }
 
 
 @pytest.fixture
 def sample_data():
-    X = pd.DataFrame({
-        'feature1': [1, 2, 3, 4, 5],
-        'cat_feature': ['A', 'B', 'A', 'B', 'A']
-    })
+    X = pd.DataFrame({"feature1": [1, 2, 3, 4, 5], "cat_feature": ["A", "B", "A", "B", "A"]})
     Y = pd.Series([0, 1, 0, 1, 0])
     return X, Y
+
 
 @pytest.fixture
 def loans(sample_configs, evaluator):
@@ -37,8 +36,8 @@ def test_loans_init(sample_configs, evaluator):
     loans = Loans(configs=sample_configs, evaluator=evaluator)
     assert loans.configs == sample_configs
     assert loans.model_class == CatBoostClassifier
-    assert loans.model_params == {'iterations': 10, 'learning_rate': 0.1}
-    assert loans.categorical_variables == ['cat_feature']
+    assert loans.model_params == {"iterations": 10, "learning_rate": 0.1}
+    assert loans.categorical_variables == ["cat_feature"]
     assert loans.verbose is False
     assert loans.evaluator == evaluator
     assert loans.models == []
@@ -119,11 +118,11 @@ def test_loans_predict(sample_data, loans):
     X, Y = sample_data
     loans.perform_cv(X, Y, nfolds=2)
     data = X.copy()
-    data['id'] = [1, 2, 3, 4, 5]
+    data["id"] = [1, 2, 3, 4, 5]
     predictions = loans.predict(data)
     assert isinstance(predictions, pd.DataFrame)
-    assert 'id' in predictions.columns
-    assert 'loan_status' in predictions.columns
+    assert "id" in predictions.columns
+    assert "loan_status" in predictions.columns
     assert len(predictions) == len(data)
 
 
@@ -139,7 +138,7 @@ def test_loans_predict_no_id_column(sample_data, loans):
 def test_loans_predict_no_models_trained(sample_data, loans):
     X, _ = sample_data
     data = X.copy()
-    data['id'] = [1, 2, 3, 4, 5]
+    data["id"] = [1, 2, 3, 4, 5]
     with pytest.raises(ValueError) as excinfo:
         loans.predict(data)
     assert "No models have been trained. Please call perform_cv first." in str(excinfo.value)
@@ -149,11 +148,11 @@ def test_loans_predict_cv(sample_data, loans):
     X, Y = sample_data
     loans.perform_cv(X, Y, nfolds=2)
     data = X.copy()
-    data['id'] = [1, 2, 3, 4, 5]
+    data["id"] = [1, 2, 3, 4, 5]
     predictions = loans.predict_cv(data)
     assert isinstance(predictions, pd.DataFrame)
-    assert 'id' in predictions.columns
-    assert 'loan_status' in predictions.columns
+    assert "id" in predictions.columns
+    assert "loan_status" in predictions.columns
     assert len(predictions) == len(data)
 
 
@@ -169,7 +168,7 @@ def test_loans_predict_cv_no_id_column(sample_data, loans):
 def test_loans_predict_cv_no_models_trained(sample_data, loans):
     X, _ = sample_data
     data = X.copy()
-    data['id'] = [1, 2, 3, 4, 5]
+    data["id"] = [1, 2, 3, 4, 5]
     with pytest.raises(ValueError) as excinfo:
         loans.predict_cv(data)
     assert "No models have been trained. Please call perform_cv first." in str(excinfo.value)

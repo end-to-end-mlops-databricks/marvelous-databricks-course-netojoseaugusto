@@ -1,16 +1,17 @@
-from src.loans.predict_loans import Evaluator
-import pytest
-import pandas as pd
 import numpy as np
-from catboost import CatBoostClassifier
+import pytest
 from sklearn.metrics import roc_auc_score
+
+from src.loans.predict_loans import Evaluator
 
 
 @pytest.fixture
 def evaluator():
     return Evaluator()
 
+
 # Evaluator Tests
+
 
 def test_evaluator_init_default():
     evaluator = Evaluator()
@@ -21,6 +22,7 @@ def test_evaluator_init_default():
 def test_evaluator_init_custom():
     def custom_metric(y_true, y_pred):
         return np.mean(y_true == y_pred)
+
     evaluator = Evaluator(metric_function=custom_metric)
     assert evaluator.metric_function == custom_metric
 

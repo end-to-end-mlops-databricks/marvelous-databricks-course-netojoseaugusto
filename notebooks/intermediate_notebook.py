@@ -1,5 +1,5 @@
 # Databricks notebook source
-!pip install catboost
+# MAGIC %pip install catboost
 
 # COMMAND ----------
 
@@ -7,36 +7,35 @@
 
 # COMMAND ----------
 
-import sys
 import os
+import sys
 
-parent_dir = os.path.dirname(os.getcwd())
-sys.path.append(parent_dir)
+from catboost import CatBoostClassifier
+from sklearn.metrics import roc_auc_score
 
-# COMMAND ----------
-
+from logging_config import setup_logging
 from src.loans.data_processor import DataBuilder
 from src.loans.helpers import open_yaml_file
 from src.loans.predict_loans import Evaluator, Loans
-from catboost import CatBoostClassifier, Pool
-from sklearn.metrics import roc_auc_score
-from logging_config import setup_logging
 
 setup_logging()
 
 # COMMAND ----------
 
-configs = open_yaml_file('../project_config.yml')
+parent_dir = os.path.dirname(os.getcwd())
+sys.path.append(parent_dir)
+# COMMAND ----------
+
+configs = open_yaml_file("../project_config.yml")
 
 # COMMAND ----------
 
 builder = DataBuilder()
 
 builder = (
-    builder
-    .load_data(configs.get('train_file_path'))
-    .drop_columns(configs.get('dropped_columns'))
-    .separate_features_and_target(configs.get('target_column'))
+    builder.load_data(configs.get("train_file_path"))
+    .drop_columns(configs.get("dropped_columns"))
+    .separate_features_and_target(configs.get("target_column"))
 )
 
 dataframe = builder.get_dataframe()
@@ -60,10 +59,7 @@ test_builder = DataBuilder()
 
 # COMMAND ----------
 
-test_builder = (
-    test_builder
-    .load_data(configs.get('test_file_path'))
-)
+test_builder = test_builder.load_data(configs.get("test_file_path"))
 
 # COMMAND ----------
 
@@ -74,5 +70,3 @@ test_df = test_builder.get_dataframe()
 result = loans.predict_cv(test_df)
 
 # COMMAND ----------
-
-

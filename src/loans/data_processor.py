@@ -1,6 +1,7 @@
-import pandas as pd
-from typing import List, Tuple, Optional
 import logging
+from typing import List, Optional, Tuple
+
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -14,14 +15,14 @@ class DataBuilder:
         self.features: Optional[pd.DataFrame] = None
         self.target: Optional[pd.Series] = None
 
-    def load_data(self, path: str) -> 'DataBuilder':
+    def load_data(self, path: str) -> "DataBuilder":
         """
         Loads a CSV file into the dataframe attribute.
         """
         self.dataframe = pd.read_csv(path)
         return self
 
-    def drop_columns(self, column_names: List[str]) -> 'DataBuilder':
+    def drop_columns(self, column_names: List[str]) -> "DataBuilder":
         """
         Drops specified columns from the dataframe attribute.
         """
@@ -30,7 +31,7 @@ class DataBuilder:
         self.dataframe.drop(columns=column_names, inplace=True)
         return self
 
-    def separate_features_and_target(self, target_column: str) -> 'DataBuilder':
+    def separate_features_and_target(self, target_column: str) -> "DataBuilder":
         """
         Separates the dataframe into features and target attributes.
         """

@@ -1,5 +1,5 @@
 # Databricks notebook source
-!pip install /Volumes/mlops_students/netojoseaugusto/package/loans-0.0.1-py3-none-any.whl
+# MAGIC %pip install /Volumes/mlops_students/netojoseaugusto/package/loans-0.0.1-py3-none-any.whl
 
 # COMMAND ----------
 
@@ -7,18 +7,19 @@
 
 # COMMAND ----------
 
-from loans.helpers import open_yaml_file
+from catboost import CatBoostClassifier
+from sklearn.metrics import roc_auc_score
+
 from loans.data_processor import DataBuilder
+from loans.helpers import open_yaml_file
 from loans.predict_loans import Evaluator, Loans
 from logging_config import setup_logging
-from catboost import CatBoostClassifier, Pool
-from sklearn.metrics import roc_auc_score
 
 setup_logging()
 
 # COMMAND ----------
 
-configs = open_yaml_file('../project_config.yml')
+configs = open_yaml_file("../project_config.yml")
 
 # COMMAND ----------
 
@@ -30,10 +31,9 @@ configs = open_yaml_file('../project_config.yml')
 builder = DataBuilder()
 
 builder = (
-    builder
-    .load_data(configs.get('train_file_path'))
-    .drop_columns(configs.get('dropped_columns'))
-    .separate_features_and_target(configs.get('target_column'))
+    builder.load_data(configs.get("train_file_path"))
+    .drop_columns(configs.get("dropped_columns"))
+    .separate_features_and_target(configs.get("target_column"))
 )
 
 dataframe = builder.get_dataframe()
@@ -67,10 +67,7 @@ test_builder = DataBuilder()
 
 # COMMAND ----------
 
-test_builder = (
-    test_builder
-    .load_data(configs.get('test_file_path'))
-)
+test_builder = test_builder.load_data(configs.get("test_file_path"))
 
 # COMMAND ----------
 
@@ -86,5 +83,3 @@ test_df = test_builder.get_dataframe()
 result = loans.predict_cv(test_df)
 
 # COMMAND ----------
-
-
