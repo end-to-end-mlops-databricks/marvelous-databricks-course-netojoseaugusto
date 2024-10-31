@@ -54,6 +54,13 @@ def test_loans_fit_model(sample_data, loans):
     model = loans.fit_model(train_x, train_y, val_x, val_y)
     assert model is not None
     assert isinstance(model, CatBoostClassifier)
+    # Verify model parameters
+    assert model.get_params()["iterations"] == loans.model_params["iterations"]
+    assert model.get_params()["learning_rate"] == loans.model_params["learning_rate"]
+    # Verify feature names preservation
+    assert model.feature_names_ == train_x.columns.tolist()
+    # Verify categorical features
+    assert model.get_cat_feature_indices() == [train_x.columns.get_loc("cat_feature")]
 
 
 def test_loans_evaluate_model(sample_data, loans):

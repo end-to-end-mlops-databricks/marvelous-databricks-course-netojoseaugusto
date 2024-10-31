@@ -31,6 +31,10 @@ class Evaluator:
         Returns:
         - float: The evaluation score.
         """
+        if len(y_true) != len(y_pred):
+            raise ValueError("Length of y_true and y_pred must match")
+        if not len(y_true):
+            raise ValueError("Empty arrays cannot be evaluated")
         return self.metric_function(y_true, y_pred)
 
 
@@ -232,7 +236,7 @@ class Loans:
 
         Returns
         -------
-        List[pd.Series]
+        List[Any]
             List of models
         """
         return self.models

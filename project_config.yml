@@ -1,11 +1,11 @@
 categorical_variables:
-  - person_age
   - person_home_ownership
   - loan_intent
   - loan_grade
   - cb_person_default_on_file
 
 continuous_variables:
+  - person_age
   - person_income
   - person_emp_length
   - loan_amnt
