@@ -23,5 +23,5 @@ jobs:
       - name: Run pre-commit checks
         run: |
           uv pip install pre-commit
-          uv pip install pytest@8.3.3
+          uv pip install pytest==8.3.3
           uv run pre-commit run --all-files
