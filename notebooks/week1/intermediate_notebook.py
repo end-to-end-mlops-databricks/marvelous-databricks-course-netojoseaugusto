@@ -1,5 +1,5 @@
 # Databricks notebook source
-# MAGIC %pip install /Volumes/mlops_students/netojoseaugusto/package/loans-0.0.1-py3-none-any.whl
+# MAGIC %pip install catboost
 
 # COMMAND ----------
 
@@ -7,24 +7,27 @@
 
 # COMMAND ----------
 
+import os
+import sys
+
 from catboost import CatBoostClassifier
 from sklearn.metrics import roc_auc_score
 
-from loans.data_processor import DataBuilder
-from loans.helpers import open_yaml_file
-from loans.predict_loans import Evaluator, Loans
 from logging_config import setup_logging
+from src.loans.data_processor import DataBuilder
+from src.loans.helpers import open_yaml_file
+from src.loans.predict_loans import Evaluator, Loans
 
 setup_logging()
 
 # COMMAND ----------
 
-configs = open_yaml_file("../project_config.yml")
+parent_dir = os.path.dirname(os.getcwd())
+sys.path.append(parent_dir)
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC ## Build Training Data
+configs = open_yaml_file("../project_config.yml")
 
 # COMMAND ----------
 
@@ -41,11 +44,6 @@ X, Y = builder.get_features_and_target()
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC ## Train Model
-
-# COMMAND ----------
-
 evaluator = Evaluator(metric_function=roc_auc_score)
 
 # COMMAND ----------
@@ -55,11 +53,6 @@ loans = Loans(configs=configs, evaluator=evaluator, model_class=CatBoostClassifi
 # COMMAND ----------
 
 loans.perform_cv(X, Y, nfolds=2)
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ## Build Test Data
 
 # COMMAND ----------
 
@@ -75,11 +68,4 @@ test_df = test_builder.get_dataframe()
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC ## Predict
-
-# COMMAND ----------
-
 result = loans.predict_cv(test_df)
-
-# COMMAND ----------

@@ -275,5 +275,3 @@ data = load_data(path=configs.get("test_file_path"))
 # COMMAND ----------
 
 predictions = catboost_predictions(models, data)
-
-# COMMAND ----------
