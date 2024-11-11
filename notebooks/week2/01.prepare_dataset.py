@@ -15,11 +15,22 @@ from loans.helpers import open_yaml_file
 from loans.predict_loans import Evaluator, Loans
 from logging_config import setup_logging
 
+from pyspark.sql import SparkSession
+
 setup_logging()
 
 # COMMAND ----------
 
+spark = SparkSession.builder.getOrCreate()
+
+# COMMAND ----------
+
 configs = open_yaml_file("../../project_config.yml")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Save Train
 
 # COMMAND ----------
 
@@ -30,6 +41,33 @@ builder = (
     .drop_columns(configs.get("dropped_columns"))
     .separate_features_and_target(configs.get("target_column"))
 )
+
+# COMMAND ----------
+
+builder.save_dataset(configs.get('train_uc_location'), spark)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Save Test
+
+# COMMAND ----------
+
+test_builder = DataBuilder()
+
+# COMMAND ----------
+
+test_builder = test_builder.load_data(configs.get("test_file_path"))
+
+# COMMAND ----------
+
+test_builder.save_dataset(configs.get('test_uc_location'), spark)
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC
+# MAGIC select * from mlops_students.netojoseaugusto.train_set
 
 # COMMAND ----------
 

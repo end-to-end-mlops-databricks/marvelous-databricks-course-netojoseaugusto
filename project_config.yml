@@ -29,6 +29,9 @@ model_verbose: 100
 train_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/train.csv
 test_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/test.csv
 
+train_uc_location: mlops_students.netojoseaugusto.train_set
+test_uc_location: mlops_students.netojoseaugusto.test_set
+
 verbose: True
 
 random_state: 42
