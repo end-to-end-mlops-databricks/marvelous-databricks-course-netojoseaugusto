@@ -14,9 +14,7 @@ mlflow.set_experiment_tags({"repository_name": "loans-prediction"})
 
 # COMMAND ----------
 
-experiments = mlflow.search_experiments(
-    filter_string="tags.repository_name='loans-prediction'"
-)
+experiments = mlflow.search_experiments(filter_string="tags.repository_name='loans-prediction'")
 print(experiments)
 
 # COMMAND ----------
@@ -28,8 +26,7 @@ with open("mlflow_experiment.json", "w") as json_file:
 
 with mlflow.start_run(
     run_name="demo-run",
-    tags={"git_sha": "ffa63b430205ff7",
-          "branch": "week2"},
+    tags={"git_sha": "ffa63b430205ff7", "branch": "week2"},
     description="demo run",
 ) as run:
     mlflow.log_params({"type": "demo"})
@@ -59,5 +56,3 @@ print(run_info["data"]["metrics"])
 print(run_info["data"]["params"])
 
 # COMMAND ----------
-
-

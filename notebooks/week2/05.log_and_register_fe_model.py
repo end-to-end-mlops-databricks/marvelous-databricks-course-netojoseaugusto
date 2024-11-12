@@ -7,27 +7,20 @@
 
 # COMMAND ----------
 
-from pyspark.sql import SparkSession
-from catboost import CatBoostClassifier
-from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, f1_score
-import pandas as pd
-from databricks.sdk import WorkspaceClient
-
-from loans.data_processor import DataBuilder
-from loans.helpers import open_yaml_file
-from loans.predict_loans import Evaluator, Loans
-from logging_config import setup_logging
-from sklearn.pipeline import Pipeline
-from loans.utils import adjust_predictions
-from mlflow.utils.environment import _mlflow_conda_env
-from mlflow import MlflowClient
-import json
-from databricks.feature_engineering import FeatureFunction, FeatureLookup
-from databricks import feature_engineering
-from pyspark.sql.functions import monotonically_increasing_id, col, lit
 
 import mlflow
+from catboost import CatBoostClassifier
+from databricks import feature_engineering
+from databricks.feature_engineering import FeatureFunction, FeatureLookup
+from databricks.sdk import WorkspaceClient
 from mlflow.models import infer_signature
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.pipeline import Pipeline
+
+from loans.helpers import open_yaml_file
+from logging_config import setup_logging
 
 setup_logging()
 
@@ -48,16 +41,16 @@ configs = open_yaml_file("../../project_config.yml")
 
 # COMMAND ----------
 
-continuous_variables = configs.get('continuous_variables')
-categorical_variables = configs.get('categorical_variables')
-target_column = configs.get('target_column')
-parameters = configs.get('model_params_simple')
-model_verbose = configs.get('model_verbose')
-catalog_name = configs.get('catalog_name')
-schema_name = configs.get('schema_name')
+continuous_variables = configs.get("continuous_variables")
+categorical_variables = configs.get("categorical_variables")
+target_column = configs.get("target_column")
+parameters = configs.get("model_params_simple")
+model_verbose = configs.get("model_verbose")
+catalog_name = configs.get("catalog_name")
+schema_name = configs.get("schema_name")
 
-parameters['cat_features'] = categorical_variables
-parameters['verbose'] = model_verbose
+parameters["cat_features"] = categorical_variables
+parameters["verbose"] = model_verbose
 
 # COMMAND ----------
 
@@ -151,7 +144,7 @@ training_set = fe.create_training_set(
             input_bindings={"person_income": "person_income"},
         ),
     ],
-    exclude_columns=["update_timestamp_utc"]
+    exclude_columns=["update_timestamp_utc"],
 )
 
 # COMMAND ----------
@@ -160,7 +153,7 @@ training_df = training_set.load_df().toPandas()
 
 # COMMAND ----------
 
-test_set["person_income_euro"] =  test_set["person_income"]*1.15
+test_set["person_income_euro"] = test_set["person_income"] * 1.15
 
 # COMMAND ----------
 
@@ -171,26 +164,23 @@ y_test = test_set[target_column]
 
 # COMMAND ----------
 
-pipeline = Pipeline(steps=[
-    ('classifier', CatBoostClassifier(**parameters))
-])
+pipeline = Pipeline(steps=[("classifier", CatBoostClassifier(**parameters))])
 
 # COMMAND ----------
 
 mlflow.set_experiment(experiment_name="/Shared/loans-netojoseaugusto-fe")
 git_sha = "ffa63b430205ff7"
 
-with mlflow.start_run(tags={"branch": "week2",
-                            "git_sha": f"{git_sha}"}) as run:
+with mlflow.start_run(tags={"branch": "week2", "git_sha": f"{git_sha}"}) as run:
     run_id = run.info.run_id
     pipeline.fit(X_train, y_train)
     y_pred = pipeline.predict(X_test)
 
     # Calculate and print metrics
     accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average='weighted')
-    recall = recall_score(y_test, y_pred, average='weighted')
-    f1 = f1_score(y_test, y_pred, average='weighted')
+    precision = precision_score(y_test, y_pred, average="weighted")
+    recall = recall_score(y_test, y_pred, average="weighted")
+    f1 = f1_score(y_test, y_pred, average="weighted")
     roc = roc_auc_score(y_test, y_pred)
 
     mlflow.log_param("model_type", "Catboost")
@@ -200,7 +190,7 @@ with mlflow.start_run(tags={"branch": "week2",
     mlflow.log_metric("recall", recall)
     mlflow.log_metric("f1_score", f1)
     mlflow.log_metric("roc_auc", roc)
-    
+
     print(f"Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1 Score: {f1}, ROC AUC: {roc}")
 
     signature = infer_signature(model_input=X_train, model_output=y_pred)
@@ -213,10 +203,6 @@ with mlflow.start_run(tags={"branch": "week2",
         training_set=training_set,
         signature=signature,
     )
-mlflow.register_model(
-    model_uri=f'runs:/{run_id}/catboost-model-fe',
-    name=f"{catalog_name}.{schema_name}.catboost_fe")
+mlflow.register_model(model_uri=f"runs:/{run_id}/catboost-model-fe", name=f"{catalog_name}.{schema_name}.catboost_fe")
 
 # COMMAND ----------
-
-

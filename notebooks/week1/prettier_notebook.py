@@ -83,5 +83,3 @@ test_df = test_builder.get_dataframe()
 result = loans.predict_cv(test_df)
 
 # COMMAND ----------
-
-

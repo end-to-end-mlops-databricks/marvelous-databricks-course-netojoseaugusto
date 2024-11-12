@@ -7,15 +7,12 @@
 
 # COMMAND ----------
 
-from catboost import CatBoostClassifier
-from sklearn.metrics import roc_auc_score
+
+from pyspark.sql import SparkSession
 
 from loans.data_processor import DataBuilder
 from loans.helpers import open_yaml_file
-from loans.predict_loans import Evaluator, Loans
 from logging_config import setup_logging
-
-from pyspark.sql import SparkSession
 
 setup_logging()
 
@@ -36,14 +33,11 @@ configs = open_yaml_file("../../project_config.yml")
 
 builder = DataBuilder()
 
-builder = (
-    builder.load_data(configs.get("train_file_path"))
-    .separate_features_and_target(configs.get("target_column"))
-)
+builder = builder.load_data(configs.get("train_file_path")).separate_features_and_target(configs.get("target_column"))
 
 # COMMAND ----------
 
-builder.save_dataset(configs.get('train_uc_location'), spark)
+builder.save_dataset(configs.get("train_uc_location"), spark)
 
 # COMMAND ----------
 
@@ -60,8 +54,6 @@ test_builder = test_builder.load_data(configs.get("test_file_path"))
 
 # COMMAND ----------
 
-test_builder.save_dataset(configs.get('test_uc_location'), spark)
+test_builder.save_dataset(configs.get("test_uc_location"), spark)
 
 # COMMAND ----------
-
-
