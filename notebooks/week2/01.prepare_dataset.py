@@ -38,7 +38,6 @@ builder = DataBuilder()
 
 builder = (
     builder.load_data(configs.get("train_file_path"))
-    .drop_columns(configs.get("dropped_columns"))
     .separate_features_and_target(configs.get("target_column"))
 )
 
@@ -62,12 +61,6 @@ test_builder = test_builder.load_data(configs.get("test_file_path"))
 # COMMAND ----------
 
 test_builder.save_dataset(configs.get('test_uc_location'), spark)
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC
-# MAGIC select * from mlops_students.netojoseaugusto.train_set
 
 # COMMAND ----------
 
