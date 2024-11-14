@@ -1,0 +1,18 @@
+{
+    "_name": "mlops_students.netojoseaugusto.pyfunc-catboost-model",
+    "_version": "1",
+    "_creation_time": 1731411975292,
+    "_last_updated_timestamp": 1731411976447,
+    "_description": "",
+    "_user_id": "netojoseaugusto@gmail.com",
+    "_current_stage": null,
+    "_source": "dbfs:/databricks/mlflow-tracking/1217730167033884/2167f400d13d46eba60ecb4cb167bb47/artifacts/pyfunc-catboost-model",
+    "_run_id": "2167f400d13d46eba60ecb4cb167bb47",
+    "_run_link": null,
+    "_status": "READY",
+    "_status_message": "",
+    "_tags": {
+        "git_sha": "ffa63b430205ff7"
+    },
+    "_aliases": []
+}

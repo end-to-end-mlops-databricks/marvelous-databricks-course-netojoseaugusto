@@ -1,0 +1,15 @@
+{
+    "_experiment_id": "1436432506038174",
+    "_name": "/Shared/loans-prediction-basic",
+    "_artifact_location": "dbfs:/databricks/mlflow-tracking/1436432506038174",
+    "_lifecycle_stage": "active",
+    "_tags": {
+        "mlflow.experiment.sourceName": "/Shared/loans-prediction-basic",
+        "mlflow.ownerId": "2893573189763732",
+        "mlflow.ownerEmail": "netojoseaugusto@gmail.com",
+        "mlflow.experimentType": "MLFLOW_EXPERIMENT",
+        "repository_name": "loans-prediction"
+    },
+    "_creation_time": 1731332132681,
+    "_last_update_time": 1731332132681
+}

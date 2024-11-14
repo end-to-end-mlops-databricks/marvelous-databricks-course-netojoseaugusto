@@ -24,11 +24,20 @@ model_params:
   use_best_model: True
   objective: Logloss
 
+model_params_simple:
+  iterations: 1500
+
 model_verbose: 100
 
-train_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/train.csv
-test_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/test.csv
+train_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/train_week2.csv
+test_file_path: /Volumes/mlops_students/netojoseaugusto/dev_mlops/test_week2.csv
+
+train_uc_location: mlops_students.netojoseaugusto.train_set
+test_uc_location: mlops_students.netojoseaugusto.test_set
 
 verbose: True
 
 random_state: 42
+
+catalog_name: mlops_students
+schema_name: netojoseaugusto

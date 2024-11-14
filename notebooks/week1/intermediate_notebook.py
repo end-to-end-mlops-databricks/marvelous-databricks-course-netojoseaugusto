@@ -24,6 +24,7 @@ setup_logging()
 
 parent_dir = os.path.dirname(os.getcwd())
 sys.path.append(parent_dir)
+
 # COMMAND ----------
 
 configs = open_yaml_file("../project_config.yml")
@@ -68,5 +69,3 @@ test_df = test_builder.get_dataframe()
 # COMMAND ----------
 
 result = loans.predict_cv(test_df)
-
-# COMMAND ----------
