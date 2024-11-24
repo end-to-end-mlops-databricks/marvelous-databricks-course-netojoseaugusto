@@ -7,13 +7,6 @@
 
 # COMMAND ----------
 
-import mlflow
-from catboost import CatBoostClassifier
-from mlflow.models import infer_signature
-from pyspark.sql import SparkSession
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
-from sklearn.pipeline import Pipeline
-
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -24,11 +17,11 @@ import requests
 from databricks import feature_engineering
 from databricks.feature_engineering import FeatureLookup
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.service.catalog import (OnlineTableSpecTriggeredSchedulingPolicy, OnlineTableSpec)
+from databricks.sdk.service.catalog import OnlineTableSpec, OnlineTableSpecTriggeredSchedulingPolicy
 from databricks.sdk.service.serving import EndpointCoreConfigInput, ServedEntityInput
+from pyspark.sql import SparkSession
 
 from loans.helpers import open_yaml_file
-
 
 # COMMAND ----------
 
@@ -113,7 +106,9 @@ online_table_pipeline = workspace.online_tables.create(name=online_table_name, s
 
 features = [
     FeatureLookup(
-        table_name=feature_table_name, lookup_key="Id", feature_names=["person_age", "person_income", "predicted_loan_status"]
+        table_name=feature_table_name,
+        lookup_key="Id",
+        feature_names=["person_age", "person_income", "predicted_loan_status"],
     )
 ]
 
@@ -186,6 +181,7 @@ num_requests = 10
 
 # COMMAND ----------
 
+
 def send_request():
     random_id = random.choice(id_list)
     start_time = time.time()
@@ -197,6 +193,7 @@ def send_request():
     end_time = time.time()
     latency = end_time - start_time  # Calculate latency for this request
     return response.status_code, latency
+
 
 # COMMAND ----------
 
@@ -222,5 +219,3 @@ print("\nTotal execution time:", total_execution_time, "seconds")
 print("Average latency per request:", average_latency, "seconds")
 
 # COMMAND ----------
-
-

@@ -11,28 +11,10 @@ import random
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-import mlflow
-from mlflow.models import infer_signature
-
-import pandas as pd
 import requests
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-)
-from sklearn.pipeline import Pipeline
-from catboost import CatBoostClassifier
-
-from pyspark.sql import SparkSession
-
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.service.catalog import OnlineTableSpec, OnlineTableSpecTriggeredSchedulingPolicy
-from databricks.sdk.service.serving import EndpointCoreConfigInput, ServedEntityInput, TrafficConfig, Route
-from databricks import feature_engineering
-from databricks.feature_engineering import FeatureLookup
+from databricks.sdk.service.serving import EndpointCoreConfigInput, Route, ServedEntityInput, TrafficConfig
+from pyspark.sql import SparkSession
 
 from loans.helpers import open_yaml_file
 
@@ -71,12 +53,9 @@ workspace.serving_endpoints.create(
                 entity_version=2,
             )
         ],
-    # Optional if only 1 entity is served
-    traffic_config=TrafficConfig(
-        routes=[
-            Route(served_model_name="catboost_model_basic-2",
-                  traffic_percentage=100)
-        ]
+        # Optional if only 1 entity is served
+        traffic_config=TrafficConfig(
+            routes=[Route(served_model_name="catboost_model_basic-2", traffic_percentage=100)]
         ),
     ),
 )
@@ -99,9 +78,7 @@ dataframe_records = [[record] for record in sampled_records]
 
 start_time = time.time()
 
-model_serving_endpoint = (
-    f"https://{host}/serving-endpoints/catboost_model_basic_loans/invocations"
-)
+model_serving_endpoint = f"https://{host}/serving-endpoints/catboost_model_basic_loans/invocations"
 response = requests.post(
     f"{model_serving_endpoint}",
     headers={"Authorization": f"Bearer {token}"},
@@ -118,9 +95,7 @@ print("Execution time:", execution_time, "seconds")
 # COMMAND ----------
 
 # Initialize variables
-model_serving_endpoint = (
-    f"https://{host}/serving-endpoints/catboost_model_basic_loans/invocations"
-)
+model_serving_endpoint = f"https://{host}/serving-endpoints/catboost_model_basic_loans/invocations"
 
 headers = {"Authorization": f"Bearer {token}"}
 num_requests = 1000
@@ -161,5 +136,3 @@ print("\nTotal execution time:", total_execution_time, "seconds")
 print("Average latency per request:", average_latency, "seconds")
 
 # COMMAND ----------
-
-

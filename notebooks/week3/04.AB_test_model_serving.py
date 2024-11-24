@@ -7,19 +7,22 @@
 
 # COMMAND ----------
 
-import json
-import random
+import copy
+import hashlib
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import mlflow
+import pandas as pd
+import requests
+from catboost import CatBoostClassifier
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.serving import (
+    EndpointCoreConfigInput,
+    ServedEntityInput,
+)
 from mlflow import MlflowClient
 from mlflow.models import infer_signature
-from mlflow.utils.environment import _mlflow_conda_env
-
-import pandas as pd
-
-import requests
+from pyspark.sql import SparkSession
 from sklearn.metrics import (
     accuracy_score,
     f1_score,
@@ -29,26 +32,7 @@ from sklearn.metrics import (
 )
 from sklearn.pipeline import Pipeline
 
-from catboost import CatBoostClassifier
-
-from pyspark.sql import SparkSession
-
-from databricks import feature_engineering
-from databricks.feature_engineering import FeatureLookup
-from databricks.sdk import WorkspaceClient
-from databricks.sdk.service.catalog import OnlineTableSpec, OnlineTableSpecTriggeredSchedulingPolicy
-from databricks.sdk.service.serving import (
-    EndpointCoreConfigInput,
-    ServedEntityInput,
-    TrafficConfig,
-    Route,
-)
-
 from loans.helpers import open_yaml_file
-from loans.utils import adjust_predictions
-from logging_config import setup_logging
-import copy
-import hashlib
 
 # COMMAND ----------
 
@@ -87,7 +71,7 @@ parameters_2 = copy.deepcopy(parameters)
 
 # COMMAND ----------
 
-parameters_2['iterations'] = 1000
+parameters_2["iterations"] = 1000
 
 # COMMAND ----------
 
@@ -214,6 +198,7 @@ model_B = mlflow.sklearn.load_model(model_uri)
 
 # COMMAND ----------
 
+
 class LoansModelWrapper(mlflow.pyfunc.PythonModel):
     def __init__(self, models):
         self.models = models
@@ -234,6 +219,7 @@ class LoansModelWrapper(mlflow.pyfunc.PythonModel):
         else:
             raise ValueError("Input must be a pandas DataFrame.")
 
+
 # COMMAND ----------
 
 X_train = train_set[continuous_variables + categorical_variables + ["id"]]
@@ -244,9 +230,7 @@ X_test = test_set[continuous_variables + categorical_variables + ["id"]]
 models = [model_A, model_B]
 wrapped_model = LoansModelWrapper(models)  # we pass the loaded models to the wrapper
 example_input = X_test.iloc[0:1]  # Select the first row for prediction as example
-example_prediction = wrapped_model.predict(
-    context=None,
-    model_input=example_input)
+example_prediction = wrapped_model.predict(context=None, model_input=example_input)
 print("Example Prediction:", example_prediction)
 
 # COMMAND ----------
@@ -258,25 +242,15 @@ model_name = f"{catalog_name}.{schema_name}.loans_model_pyfunc_ab_test"
 
 with mlflow.start_run() as run:
     run_id = run.info.run_id
-    signature = infer_signature(model_input=X_train,
-                                model_output={"Prediction": 0,
-                                              "model": "Model B"})
-    dataset = mlflow.data.from_spark(train_set_spark,
-                                     table_name=f"{catalog_name}.{schema_name}.train_set",
-                                     version="0")
+    signature = infer_signature(model_input=X_train, model_output={"Prediction": 0, "model": "Model B"})
+    dataset = mlflow.data.from_spark(train_set_spark, table_name=f"{catalog_name}.{schema_name}.train_set", version="0")
     mlflow.log_input(dataset, context="training")
-    mlflow.pyfunc.log_model(
-        python_model=wrapped_model,
-        artifact_path="pyfunc-loans-model-ab",
-        signature=signature
-    )
+    mlflow.pyfunc.log_model(python_model=wrapped_model, artifact_path="pyfunc-loans-model-ab", signature=signature)
 
 # COMMAND ----------
 
 model_version = mlflow.register_model(
-    model_uri=f"runs:/{run_id}/pyfunc-loans-model-ab",
-    name=model_name,
-    tags={"git_sha": f"{git_sha}"}
+    model_uri=f"runs:/{run_id}/pyfunc-loans-model-ab", name=model_name, tags={"git_sha": f"{git_sha}"}
 )
 
 
@@ -326,9 +300,7 @@ dataframe_records = [[record] for record in sampled_records]
 
 start_time = time.time()
 
-model_serving_endpoint = (
-    f"https://{host}/serving-endpoints/loans-model-serving-ab-test/invocations"
-)
+model_serving_endpoint = f"https://{host}/serving-endpoints/loans-model-serving-ab-test/invocations"
 
 response = requests.post(
     f"{model_serving_endpoint}",
@@ -344,5 +316,3 @@ print("Reponse text:", response.text)
 print("Execution time:", execution_time, "seconds")
 
 # COMMAND ----------
-
-

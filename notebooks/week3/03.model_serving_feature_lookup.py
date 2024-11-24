@@ -7,32 +7,13 @@
 
 # COMMAND ----------
 
-import random
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
-import mlflow
-from mlflow.models import infer_signature
-
-import pandas as pd
 import requests
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-)
-from sklearn.pipeline import Pipeline
-from catboost import CatBoostClassifier
-
-from pyspark.sql import SparkSession
-
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import OnlineTableSpec, OnlineTableSpecTriggeredSchedulingPolicy
-from databricks.sdk.service.serving import EndpointCoreConfigInput, ServedEntityInput, TrafficConfig, Route
-from databricks import feature_engineering
-from databricks.feature_engineering import FeatureLookup
+from databricks.sdk.service.serving import EndpointCoreConfigInput, ServedEntityInput
+from pyspark.sql import SparkSession
 
 from loans.helpers import open_yaml_file
 
@@ -59,7 +40,7 @@ categorical_variables = configs.get("categorical_variables")
 online_table_name = f"{catalog_name}.{schema_name}.loan_features_online"
 spec = OnlineTableSpec(
     primary_key_columns=["id"],
-    source_table_full_name=f"{catalog_name}.{schema_name}.loan_features", # Ensure this table exists
+    source_table_full_name=f"{catalog_name}.{schema_name}.loan_features",  # Ensure this table exists
     run_triggered=OnlineTableSpecTriggeredSchedulingPolicy.from_dict({"triggered": "true"}),
     perform_full_copy=False,
 )
@@ -113,11 +94,11 @@ train_set["person_income_euro"] = train_set["person_income"] * 1.15
 
 # COMMAND ----------
 
-train_set['person_income_euro'] = train_set['person_income_euro'].astype(int) 
+train_set["person_income_euro"] = train_set["person_income_euro"].astype(int)
 
 # COMMAND ----------
 
-sampled_records = train_set[['id'] + required_columns].sample(n=1000, replace=True).to_dict(orient="records")
+sampled_records = train_set[["id"] + required_columns].sample(n=1000, replace=True).to_dict(orient="records")
 dataframe_records = [[record] for record in sampled_records]
 
 # COMMAND ----------
@@ -145,5 +126,3 @@ print("Execution time:", execution_time, "seconds")
 
 
 # COMMAND ----------
-
-
