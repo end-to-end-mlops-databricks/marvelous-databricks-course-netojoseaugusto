@@ -14,10 +14,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.serving import EndpointCoreConfigInput, Route, ServedEntityInput, TrafficConfig
+from pyspark.dbutils import DBUtils
 from pyspark.sql import SparkSession
 
 from loans.helpers import open_yaml_file
-from pyspark.dbutils import DBUtils
 
 # COMMAND ----------
 

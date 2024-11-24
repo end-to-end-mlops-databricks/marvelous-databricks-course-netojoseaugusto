@@ -19,10 +19,10 @@ from databricks.feature_engineering import FeatureLookup
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import OnlineTableSpec, OnlineTableSpecTriggeredSchedulingPolicy
 from databricks.sdk.service.serving import EndpointCoreConfigInput, ServedEntityInput
+from pyspark.dbutils import DBUtils
 from pyspark.sql import SparkSession
 
 from loans.helpers import open_yaml_file
-from pyspark.dbutils import DBUtils
 
 # COMMAND ----------
 

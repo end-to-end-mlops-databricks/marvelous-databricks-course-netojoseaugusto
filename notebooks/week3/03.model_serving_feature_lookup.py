@@ -13,10 +13,10 @@ import requests
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.catalog import OnlineTableSpec, OnlineTableSpecTriggeredSchedulingPolicy
 from databricks.sdk.service.serving import EndpointCoreConfigInput, ServedEntityInput
+from pyspark.dbutils import DBUtils
 from pyspark.sql import SparkSession
 
 from loans.helpers import open_yaml_file
-from pyspark.dbutils import DBUtils
 
 # COMMAND ----------
 
@@ -102,10 +102,6 @@ train_set["person_income_euro"] = train_set["person_income_euro"].astype(int)
 
 sampled_records = train_set[["id"] + required_columns].sample(n=1000, replace=True).to_dict(orient="records")
 dataframe_records = [[record] for record in sampled_records]
-
-# COMMAND ----------
-
-train_set.dtypes
 
 # COMMAND ----------
 

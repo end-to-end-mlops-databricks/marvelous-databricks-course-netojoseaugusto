@@ -22,6 +22,7 @@ from databricks.sdk.service.serving import (
 )
 from mlflow import MlflowClient
 from mlflow.models import infer_signature
+from pyspark.dbutils import DBUtils
 from pyspark.sql import SparkSession
 from sklearn.metrics import (
     accuracy_score,
@@ -33,12 +34,6 @@ from sklearn.metrics import (
 from sklearn.pipeline import Pipeline
 
 from loans.helpers import open_yaml_file
-
-from loans.utils import adjust_predictions
-from logging_config import setup_logging
-import copy
-import hashlib
-from pyspark.dbutils import DBUtils
 
 # COMMAND ----------
 
