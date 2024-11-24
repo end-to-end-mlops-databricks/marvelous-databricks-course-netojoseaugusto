@@ -17,10 +17,12 @@ from databricks.sdk.service.serving import EndpointCoreConfigInput, Route, Serve
 from pyspark.sql import SparkSession
 
 from loans.helpers import open_yaml_file
+from pyspark.dbutils import DBUtils
 
 # COMMAND ----------
 
 spark = SparkSession.builder.getOrCreate()
+dbutils = DBUtils(spark)
 
 # Initialize Databricks clients
 workspace = WorkspaceClient()

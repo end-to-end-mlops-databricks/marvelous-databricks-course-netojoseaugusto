@@ -34,6 +34,12 @@ from sklearn.pipeline import Pipeline
 
 from loans.helpers import open_yaml_file
 
+from loans.utils import adjust_predictions
+from logging_config import setup_logging
+import copy
+import hashlib
+from pyspark.dbutils import DBUtils
+
 # COMMAND ----------
 
 mlflow.set_tracking_uri("databricks")
@@ -51,6 +57,7 @@ configs = open_yaml_file("../../project_config.yml")
 # COMMAND ----------
 
 spark = SparkSession.builder.getOrCreate()
+dbutils = DBUtils(spark)
 
 # COMMAND ----------
 
@@ -314,5 +321,3 @@ execution_time = end_time - start_time
 print("Response status:", response.status_code)
 print("Reponse text:", response.text)
 print("Execution time:", execution_time, "seconds")
-
-# COMMAND ----------
